@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 3797501372
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: perfabs/panel/testpanel
+      Dependencies: {}
