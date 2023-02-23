@@ -33,8 +33,6 @@ public class StartGame : MonoBehaviour
 
     private void StartG()
     {
-
-
         Assembly ass = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "Assembly-CSharp");
         foreach (var item in ass.GetTypes())
         {

@@ -56,8 +56,12 @@ public class AssetBundleTools : EditorWindow
                     Macro += string.Format("{0};", item.Key);
                 }
             }
+#if UNITY_ANDROID
+    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Macro);
+#elif UNITY_STANDALONE_WIN
+    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, Macro);
+#endif
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Macro);
             Debug.Log(Macro);
             window.Close();
         }
@@ -77,7 +81,11 @@ public class AssetBundleTools : EditorWindow
                 }
             }
 
+#if UNITY_ANDROID
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Macro);
+#elif UNITY_STANDALONE_WIN
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, Macro);
+#endif            
             Debug.Log(Macro);
             window.Close();
         }

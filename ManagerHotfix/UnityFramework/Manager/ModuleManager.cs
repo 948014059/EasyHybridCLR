@@ -24,6 +24,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         Transform Canvas = GameObject.FindGameObjectWithTag("Canvas").transform;
         UIFrom = Canvas.Find("UI");
         LogFrom = Canvas.Find("Log");
+        //Debug.Log("--:"+Canvas +"  --:"+ UIFrom);
     }
 
     /// <summary>
@@ -118,6 +119,8 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         {
             GameObject newGo = Instantiate(go);
             newGo.transform.SetParent(GetFromByType(type));
+            Debug.Log("…Ë÷√∏∏ŒÔÃÂ£∫"+GetFromByType(type)+ 
+                "type:"+ type + "  UIFrom:" + UIFrom);
             newGo.transform.localPosition = Vector3.zero;
             newGo.transform.localScale = Vector3.one;
             newGo.gameObject.SetActive(true);

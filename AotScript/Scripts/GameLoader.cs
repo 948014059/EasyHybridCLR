@@ -90,10 +90,32 @@ public class GameLoader : MonoBehaviour
         //System.Reflection.Assembly.Load(GetAssetData("Assembly-CSharp.dll"));
 #endif
 
+        //BaseModule module = (BaseModule)System.Activator.CreateInstance(type);
+        //MethodInfo moduleInfo = type.GetMethod("GetView");
+        //Type viewType = (Type)moduleInfo.Invoke(module, null);
+        Action openUpdateCallBack = () => {
+            Debug.Log("----->打开热更成功。。。");
+        };
+
+
+        // 加载程序集
         Assembly ass = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "ManagerHotfix");
-        Type startType = ass.GetType("StartGame");
-        this.gameObject.AddComponent(startType);
-        Debug.Log("ass:" + ass + " startType:"+startType);
+        Type ModuleManagerType = ass.GetType("ModuleManager"); // 获得ModuleManager类
+        MethodInfo moduleManagerIns = ModuleManagerType.BaseType.GetMethod("GetInstance"); //获得基类单例
+        object instance = moduleManagerIns.Invoke(null,null); // 实例化单例
+
+        MethodInfo moduleManagerOpenModule = ModuleManagerType.GetMethod("OpenModule"); // 获得开开UI方法
+
+        Type startType = ass.GetType("UpdateModule");  // 获得要打开UI的module
+
+        object[] parameters = { startType, openUpdateCallBack }; // 方法的参数
+        moduleManagerOpenModule.Invoke(instance, parameters); // 使用方法。
+
+        //moduleManagerOpenModule.Invoke(ModuleManager, parameters);
+
+        //Type startType = ass.GetType("StartGame");
+        //this.gameObject.AddComponent(startType);
+        //Debug.Log("ass:" + ass + " startType:"+startType);
     }
 
 
