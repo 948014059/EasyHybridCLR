@@ -1,7 +1,10 @@
 ManifestFileVersion: 0
-CRC: 3797501372
+CRC: 1197653251
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: perfabs/panel/testpanel
+      Dependencies: {}
+    Info_1:
+      Name: perfabs/panel/updatepanel
       Dependencies: {}

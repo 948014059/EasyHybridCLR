@@ -92,7 +92,7 @@ public class AssetBundleTools : EditorWindow
 
         Version = GUILayout.TextArea(Version);
         IsGenHotFix = GUILayout.Toggle(IsGenHotFix, "是否重新生成hotfix");
-        IsCopyAB2StreamingAssets =GUILayout.Toggle(IsCopyAB2StreamingAssets, "是否将AB包复制到StreamingAssets(第一次打包使用)");
+        IsCopyAB2StreamingAssets =GUILayout.Toggle(IsCopyAB2StreamingAssets, "是否将AB包复制到StreamingAssets(打完整包使用)");
 
 
         TargetPlatformId = GUILayout.Toolbar(TargetPlatformId, new[] {"Window" , "Android" ,"Ios" });

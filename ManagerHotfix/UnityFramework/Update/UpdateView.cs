@@ -5,9 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using LitJson;
 using System.IO;
-
-
-
+using System.Reflection;
+using System.Linq;
 
 public class UpdateView : MonoBehaviour
 {
@@ -37,7 +36,7 @@ public class UpdateView : MonoBehaviour
 
     void Start()
     {
-        CheckVersionData();
+        MoveALLResource2PersistentDataPath();
         BtnClickEvent();
     }
     void Update()
@@ -45,7 +44,8 @@ public class UpdateView : MonoBehaviour
         if (updateModel.IsStartDown)
         {
             updateModel.downLoadTime += Time.deltaTime;
-            SetUpdateText("正在更新中...[" + updateModel.currDownNum + "/" + updateModel.needHotUpdateList.Count + "]   " + (Utils.ByteLength2KB(updateModel.currDownLength) / updateModel.downLoadTime).ToString("0.0") + "KB/S");
+            SetUpdateText("正在更新中...[" + updateModel.currDownNum + "/" + updateModel.needHotUpdateList.Count + "]   " + 
+                (Utils.ByteLength2KB(updateModel.currDownLength) / updateModel.downLoadTime).ToString("0.0") + "KB/S");
             updataSlider.value = (float)updateModel.currDownNum / updateModel.needHotUpdateList.Count;
             if (updateModel.currDownNum >= updateModel.needHotUpdateList.Count)
             {
@@ -56,6 +56,34 @@ public class UpdateView : MonoBehaviour
                 SetUpdateText("更新完成...");
                 LoadHotFix();
             }
+        }
+    }
+
+    /// <summary>
+    /// 准备资源(第一次启动，可读写路径没有资源，
+    /// 将StreamingAssets中的资源复制到可读写路径中，方便后续更新)
+    /// </summary>
+    public void MoveALLResource2PersistentDataPath()
+    {
+        SetUpdateText("资源准备中......");
+        if (Directory.Exists(Config.ABPath) && 
+            !File.Exists(Config.ABPath + Config.CopyResourceTempName)) // 检查是否有资源，并且已经复制完成
+        {
+            CheckVersionData(); //对比版本，开启跟新
+        }
+        else
+        {
+            // 需要复制资源
+            StartCoroutine(Utils.CopyFilesRecursively(Config.streamAssetsDataPath,Config.ABPath,()=> {
+                SetUpdateText("资源准备完成......");
+                Utils.DelFile(Config.ABPath + Config.CopyResourceTempName);
+                updataSlider.value = 1;
+                CheckVersionData();//对比版本，开启跟新
+            },(all,index)=> {
+                updataSlider.value = index/ 1.0f / all ;
+                //Debug.Log(index+"/"+all+ "----"+index/1.0f / all);
+                updateModel.CopyResourceFileTemp(index + "/" + all);
+            }));
         }
     }
 
@@ -70,6 +98,7 @@ public class UpdateView : MonoBehaviour
             UpdateModel.VersionData serverVersionData = updateModel.GetVersionJsonData(updateModel.serverData);
 
             string localVersion = Utils.GetLocalFileData(Config.ABPath + Config.VersionName);
+
             if (string.IsNullOrEmpty(localVersion)) //本地无版本配置文件
             {
                 updateModel.needHotUpdateList = serverVersionData.filedatas;
@@ -153,7 +182,29 @@ public class UpdateView : MonoBehaviour
     private void LoadHotFix()
     {
         ABManager.GetInstance().ReLoadAssetBundle();
-        GameObject.Find("GameLoader").AddComponent<LoadDll>();
+        StartCoroutine(GameLoader.Instance.DownloadHotFixAssets("Assembly-CSharp.dll", () =>
+        {
+            GameLoader.Instance.LoadMetadataForAOTAssemblies();
+#if !UNITY_EDITOR
+        //System.Reflection.Assembly.Load(GetAssetData("ManagerHotfix.dll"));
+        System.Reflection.Assembly.Load(GameLoader.Instance.GetAssetData("Assembly-CSharp.dll"));
+#endif
+            StartG();
+
+        }, Config.ABPath, Config.PlatFrom));
+        //GameObject.Find("GameLoader").AddComponent<LoadDll>();
+    }
+
+    private void StartG()
+    {
+        Assembly ass = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "Assembly-CSharp");
+        Type startType = ass.GetType("Assets.Hotfix.UI.testmodule");
+
+        ModuleManager.GetInstance().OpenModule(startType, () =>
+        {
+            ModuleManager.GetInstance().CloseModule(typeof(UpdateModule));
+            Debug.Log("打开ui测试");
+        });
     }
 
 

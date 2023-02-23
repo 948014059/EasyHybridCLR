@@ -209,7 +209,8 @@ public class ABManager : BaseSingleTon<ABManager>
         assetsPath = Config.ABPath + Config.PlatFrom + "/";
         if (Directory.Exists(assetsPath) && 
             !File.Exists(Config.ABPath + Config.VersionTempName)
-            && File.Exists(Config.ABPath + Config.VersionName))  // 完成热更使用热更目录
+            && File.Exists(Config.ABPath + Config.VersionName)
+            && !File.Exists(Config.ABPath + Config.CopyResourceTempName))  // 完成资源复制 并且完成热更 时使用热更目录
         {
             return assetsPath;
         }

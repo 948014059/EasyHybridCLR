@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,6 +44,31 @@ public static class Utils
     #endregion
 
     #region 文件操作
+
+    /// <summary>
+    /// 复制整个目录到某个目录
+    /// </summary>
+    /// <param name="sourcePath"></param>
+    /// <param name="targetPath"></param>
+    public static IEnumerator CopyFilesRecursively(string sourcePath, string targetPath ,Action finshCallback,Action<int,int> trunkCallback)
+    {
+        foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+        {
+            Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+        }
+
+        string[] newPaths = Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories);
+        for (int i = 0; i < newPaths.Length; i++)
+        {
+            File.Copy(newPaths[i], newPaths[i].Replace(sourcePath, targetPath), true);
+            yield return null;
+            trunkCallback?.Invoke(newPaths.Length, i);
+        }
+
+        finshCallback?.Invoke();
+    }
+
+
     /// <summary>
     /// 创建目录
     /// </summary>

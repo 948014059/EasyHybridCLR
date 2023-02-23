@@ -70,6 +70,16 @@ class UpdateModel : BaseModel
         }
     }
 
+    public void CopyResourceFileTemp(string Str)
+    {
+        using (StreamWriter sw = File.AppendText(Config.ABPath + Config.CopyResourceTempName))
+        {
+            sw.WriteLineAsync(Str);
+        }
+    }
+
+
+
     public void CheckDownLoadTempFile()
     {
         if (File.Exists(Config.ABPath + Config.VersionTempName))
