@@ -210,7 +210,7 @@ public class AssetBundleTools : EditorWindow
             }
             if (extension != ".meta")
             {
-                string fileMd5 = Utils.GetMD5HashFromFile(item);
+                string fileMd5 = BaseUtils.GetMD5HashFromFile(item);
                 int fileLen = File.ReadAllBytes(item).Length;
                 allLength += fileLen;
                 md5Dict.Add(fileName, fileMd5 + "+" + fileLen);

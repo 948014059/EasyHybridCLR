@@ -52,6 +52,15 @@ public static class  ResourcesManager
     }
 
 
+    public static string GetTextAsset(string path)
+    {
+#if !ASSETBUNDLE
+        return GetTxtDataFromEditorPath(path+".txt");
+#else
+        return  aBManager.GetGameObject(path);
+#endif
+    }
+
     public static AudioClip GetAudioClip()
     {
         return null;
@@ -103,6 +112,19 @@ public static class  ResourcesManager
         return null;
     }
 
+    public static  string  GetTxtDataFromEditorPath(string path)
+    {
+        string Txtpath = Config.EditorPath + path;
+        if (File.Exists(Application.dataPath.Replace("Assets", "") + Txtpath))
+        {
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(Txtpath).text;
+        }
+        else
+        {
+            Debug.Log("未找到资源：" + Txtpath);
+        }
+        return "";
+    }
 
 
 #endif

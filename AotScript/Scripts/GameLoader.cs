@@ -87,14 +87,10 @@ public class GameLoader : MonoBehaviour
 
 #if !UNITY_EDITOR
         System.Reflection.Assembly.Load(GetAssetData("ManagerHotfix.dll"));
-        //System.Reflection.Assembly.Load(GetAssetData("Assembly-CSharp.dll"));
 #endif
 
-        //BaseModule module = (BaseModule)System.Activator.CreateInstance(type);
-        //MethodInfo moduleInfo = type.GetMethod("GetView");
-        //Type viewType = (Type)moduleInfo.Invoke(module, null);
         Action openUpdateCallBack = () => {
-            Debug.Log("----->打开热更成功。。。");
+            Debug.Log("从Aot程序 -----> 资源管理程序");
         };
 
 
@@ -110,12 +106,6 @@ public class GameLoader : MonoBehaviour
 
         object[] parameters = { startType, openUpdateCallBack }; // 方法的参数
         moduleManagerOpenModule.Invoke(instance, parameters); // 使用方法。
-
-        //moduleManagerOpenModule.Invoke(ModuleManager, parameters);
-
-        //Type startType = ass.GetType("StartGame");
-        //this.gameObject.AddComponent(startType);
-        //Debug.Log("ass:" + ass + " startType:"+startType);
     }
 
 

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public static class Utils
+public static class BaseUtils
 {
 
     /// <summary>

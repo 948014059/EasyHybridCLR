@@ -87,7 +87,9 @@ public class UpdateView : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// 检查资源更新
+    /// </summary>
     public void CheckVersionData()
     {
 
@@ -140,7 +142,9 @@ public class UpdateView : MonoBehaviour
 
     }
 
-
+    /// <summary>
+    /// 按钮事件
+    /// </summary>
     private void BtnClickEvent()
     {
 
@@ -150,6 +154,9 @@ public class UpdateView : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 开始更新
+    /// </summary>
     private void StartUpdate() 
     {
         AllowUpdateTf.gameObject.SetActive(false);
@@ -179,6 +186,9 @@ public class UpdateView : MonoBehaviour
         updatText.text = text;
     }
 
+    /// <summary>
+    /// 资源已准备好，加载程序开始游戏吧
+    /// </summary>
     private void LoadHotFix()
     {
         ABManager.GetInstance().ReLoadAssetBundle();
@@ -186,15 +196,16 @@ public class UpdateView : MonoBehaviour
         {
             GameLoader.Instance.LoadMetadataForAOTAssemblies();
 #if !UNITY_EDITOR
-        //System.Reflection.Assembly.Load(GetAssetData("ManagerHotfix.dll"));
         System.Reflection.Assembly.Load(GameLoader.Instance.GetAssetData("Assembly-CSharp.dll"));
 #endif
             StartG();
 
         }, Config.ABPath, Config.PlatFrom));
-        //GameObject.Find("GameLoader").AddComponent<LoadDll>();
     }
 
+    /// <summary>
+    /// 可以进入到游戏逻辑中了。
+    /// </summary>
     private void StartG()
     {
         Assembly ass = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "Assembly-CSharp");
@@ -203,7 +214,6 @@ public class UpdateView : MonoBehaviour
         ModuleManager.GetInstance().OpenModule(startType, () =>
         {
             ModuleManager.GetInstance().CloseModule(typeof(UpdateModule));
-            Debug.Log("打开ui测试");
         });
     }
 
