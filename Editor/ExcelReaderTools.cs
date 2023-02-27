@@ -10,8 +10,8 @@ using UnityEngine;
 class ExcelReaderTools:EditorWindow
 {
     static ExcelReaderTools window;
-    private string pythonScriptPath = "C:/UnityFiles/UnityHotFixFrameWork/ExcelData/Excel2CsvAndCsharp.py";
-    private string exchelPath = "C:/UnityFiles/UnityHotFixFrameWork/ExcelData/";
+    private string pythonScriptPath = "C:/UnityFiles/UnityHotFixFrameWork/Assets/ExcelData/Excel2CsvAndCsharp.py";
+    private string exchelPath = "C:/UnityFiles/UnityHotFixFrameWork/Assets/ExcelData";
     private string txtSavePath = "/ProjectResources/ExcelData/";
     private string csSavePath = "/Hotfix/ExcelDataRead/";
     private string excelExtension = "xls";
