@@ -96,7 +96,7 @@ Assets
 
 # AotScript
 * 只存放2个东西
- * 第三方SDK (可放到热更程序集，待测)
+ * 第三方SDK (据说可以可放到热更程序集，待测)
  * GameLoader.cs
    * 程序入口
    * 单例
@@ -131,12 +131,62 @@ Assets
   * Utils   工具
   * Config.cs  配置
 * StartGame.cs（UpdateModule.cs） 通过该脚本进行资源跟新，并进入到游戏主逻辑中。
+  * 下载资源以及逻辑dll
+  * 加载逻辑dll
+  * 补充元数据
+  * 加载逻辑dll程序
+  * 可以开始游戏了
 
 
 
+# AB包打包加载问题
+
+* 打空包，资源游戏开始时下载。
+  * 最少需要更新界面资源，如何热更更新界面？
+
+* 游戏给初始资源到可读路径，进入游戏后拷贝到读写路径（使用该方法）。
+  * 会造成双份资源。
+  * 可以一次性给所有资源。
+  * 通过判断读写路径中是否有资源 来判断 读可读路径资源还是读写路径资源。
 
 
+# 配置表管理
+* excel格式
+  * 数据类型展示支持int、string。
+  * 表格第一行为数据类型。
+  * 第二行为提示内容summary
+  * 第三行为使用名称
+  * 第四行开始是数据
+ 
+  例如
+  | int | string  | string  | string  |
+  |----|----|----|----|
+  |唯一id|名称|iconUrl|ModdelUrl|
+  |id|name|icon|modul|
+  |1|dada1|123456|456789|
+  |2|dada2|123456|456789|
 
+
+* 通过python脚本生成txt和CSharp文件
+  * 通过传递下列参数执行
+  ```
+    --excelpath EXCELPATH  #excel保存路径
+    --cspath CSPATH        #生成的Csharp文件保存路径
+    --txtpath TXTPATH      #生成的txt文件保存路径
+    --extension EXTENSION  #excel的后缀名称，默认为xls
+  ```
+* 编辑器工具
+  * 使用编辑器工具是为了更加无缝地生成文件
+  * 主要就是使用C#运行Cmd命令，从而运行python脚本。
+  * 所以，需要在编辑器工具ExcelReaderTools中获取python脚本运行时需要的参数。
+  * 然后进行组装。
+  * 运行 Process.Start("CMD.exe", "/k " + cmdStr);
+* 配置表管理工具
+  * TableDataManager.cs
+  * 使用反射,创建新的BaseTable对象,填充数据
+  * 将数据保存到一个新的BaseTable的data中，并使用字典缓存起来
+* 读取表数据
+  * 使用 TestData data = TableDataManager.GetInstance().GetTableDataByType<TestData>();
 
 
 
