@@ -55,9 +55,9 @@ public static class  ResourcesManager
     public static string GetTextAsset(string path)
     {
 #if !ASSETBUNDLE
-        return GetTxtDataFromEditorPath(path+".txt");
+        return GetTxtDataFromEditorPath(path);
 #else
-        return  aBManager.GetGameObject(path);
+        return  aBManager.GetTextAssets(path);
 #endif
     }
 
@@ -114,7 +114,7 @@ public static class  ResourcesManager
 
     public static  string  GetTxtDataFromEditorPath(string path)
     {
-        string Txtpath = Config.EditorPath + path;
+        string Txtpath = Config.EditorPath + path + ".txt";
         if (File.Exists(Application.dataPath.Replace("Assets", "") + Txtpath))
         {
             return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(Txtpath).text;

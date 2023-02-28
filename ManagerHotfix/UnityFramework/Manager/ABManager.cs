@@ -105,7 +105,17 @@ public class ABManager : BaseSingleTon<ABManager>
         return null;
     }
 
-
+    public string GetTextAssets(string _path)
+    {
+        string path = _path.ToLower();
+        GetAssetBundelWithAllDepend(path);
+        if (ABDict.ContainsKey(path))
+        {
+            string[] nameSplit = path.Split("/");
+            return ABDict[path].LoadAsset<TextAsset>(nameSplit[nameSplit.Length - 1]).text;
+        }
+        return null;
+    }
 
 
 

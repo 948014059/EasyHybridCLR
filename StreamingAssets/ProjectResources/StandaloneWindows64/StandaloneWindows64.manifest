@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 1197653251
+CRC: 3805455072
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -7,4 +7,10 @@ AssetBundleManifest:
       Dependencies: {}
     Info_1:
       Name: perfabs/panel/updatepanel
+      Dependencies: {}
+    Info_2:
+      Name: exceldata/itemdata
+      Dependencies: {}
+    Info_3:
+      Name: exceldata/testdata
       Dependencies: {}
