@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ public class ABManager : BaseSingleTon<ABManager>
     private AssetBundleManifest ABManifest;
     private Dictionary<string, AssetBundle> ABDict = new Dictionary<string, AssetBundle>();
 
+    private List<string> loadingAssetName = new List<string>();
     private void Awake()
     {
         InitData();
@@ -75,6 +77,50 @@ public class ABManager : BaseSingleTon<ABManager>
         Debug.Log("Î´¼ÓÔØab°ü");
         return null;
     }
+
+    public void GetGameObjectAsycn(List<string> _names, Action<Dictionary<string, GameObject>> callback)
+    {
+        loadingAssetName.Clear();
+        Dictionary<string, GameObject> loadDict = new Dictionary<string, GameObject>();
+        foreach (var _name in _names)
+        {
+            string name = _name.ToLower();
+            GetAssetBundelAllDependName(name);
+            GameObject go = null;
+            StartCoroutine(LoadGameObjectDependAsycn(loadingAssetName, () => {
+                if (ABDict.ContainsKey(name))
+                {
+                    string[] nameSplit = name.Split("/");
+                    go = ABDict[name].LoadAsset<GameObject>(nameSplit[nameSplit.Length - 1]);
+
+                    loadDict.Add(name,go);
+                }
+            }));
+        }
+        callback?.Invoke(loadDict);             
+//return go;
+    }
+
+    public IEnumerator LoadGameObjectDependAsycn(List<string> paths,Action callBack)
+    {
+        foreach (var item in paths)
+        {
+            //AssetBundle assetBundle = null;
+            AssetBundleCreateRequest assetBundlereq = AssetBundle.LoadFromFileAsync(GetAssetsPath() + item);
+            yield return assetBundlereq;
+            if (assetBundlereq.isDone)
+            {
+                Debug.Log("item" + item);
+                ABDict.Add(item, assetBundlereq.assetBundle);
+            }
+        }
+        callBack?.Invoke();
+    }
+
+
+
+
+
     
     public Sprite GetSprite(string _name)
     {
@@ -154,17 +200,36 @@ public class ABManager : BaseSingleTon<ABManager>
         }
         else
         {
-            AssetBundle newab = LoadABundleWithPath(path);
             string[] dependName = ABManifest.GetAllDependencies(path);
             foreach (var item in dependName)
             {
                 //Debug.Log(path + "   " + item);
                 GetAssetBundelWithAllDepend(item);
             }
-
+            AssetBundle newab = LoadABundleWithPath(path);
             ABDict.Add(path, newab);
         }       
     }
+
+
+    private void GetAssetBundelAllDependName(string path)
+    {
+        if (ABDict.ContainsKey(path))
+        {
+            return;
+        }
+        else
+        {
+            loadingAssetName.Add(path);
+            string[] dependName = ABManifest.GetAllDependencies(path);
+            foreach (var item in dependName)
+            {
+                //Debug.Log(path + "   " + item);
+                GetAssetBundelAllDependName(item);
+            }
+        }
+    }
+
 
 
     /// <summary>

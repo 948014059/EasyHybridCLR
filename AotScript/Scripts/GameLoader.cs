@@ -93,7 +93,6 @@ public class GameLoader : MonoBehaviour
             Debug.Log("从Aot程序 -----> 资源管理程序");
         };
 
-
         // 加载程序集
         Assembly ass = AppDomain.CurrentDomain.GetAssemblies().First(assembly => assembly.GetName().Name == "ManagerHotfix");
         Type ModuleManagerType = ass.GetType("ModuleManager"); // 获得ModuleManager类

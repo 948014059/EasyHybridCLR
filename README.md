@@ -185,8 +185,11 @@ Assets
   * TableDataManager.cs
   * 使用反射,创建新的BaseTable对象,填充数据
   * 将数据保存到一个新的BaseTable的data中，并使用字典缓存起来
-* 读取表数据
-  * 使用 TestData data = TableDataManager.GetInstance().GetTableDataByType<TestData>();
+  * 读取表数据
+  * 使用 
+```
+  TestData data = TableDataManager.GetInstance().GetTableDataByType<TestData>();
+```
 
 
 

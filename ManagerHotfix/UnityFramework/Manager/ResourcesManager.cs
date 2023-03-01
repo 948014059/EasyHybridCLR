@@ -30,6 +30,22 @@ public static class  ResourcesManager
 #endif
     }
 
+
+//    public static void GetPrefabsGameObjectAsync(List<string> paths, Action<Dictionary<string,GameObject>> callback)
+//    {
+//#if !ASSETBUNDLE
+//        return GetGameObjectFromEditorPath(path);
+//#else
+//        aBManager.GetGameObjectAsycn(paths, callback);
+//#endif
+//    }
+
+
+
+
+
+
+
     public static Sprite GetSprite(string spritePath)
     {
 

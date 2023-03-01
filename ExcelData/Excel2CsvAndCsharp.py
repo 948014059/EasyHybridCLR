@@ -5,7 +5,7 @@ import glob
 
 
 def Excel2Csv(excel,csvSvaePath):
-    excel.to_csv(csvSvaePath,index=None,header=None)
+    excel.to_csv(csvSvaePath,index=None)
 
 def Excel2Csharp(strList,csharpSavePath,csharpClssName):
     with open(csharpSavePath,"w" ,encoding="utf-8") as f:
@@ -59,15 +59,27 @@ if __name__ == "__main__":
             _txtSvaePath = os.path.join(txtSavePath,_csharpClssName+".txt").replace("\\","/") 
             _csharpSavePath = os.path.join(csSavePath,_csharpClssName+".cs").replace("\\","/") 
             ExcelDAta = pd.read_excel(_excelPath,header=None)
+            # newExcelData = pd.DataFrame() 
+            # newExcelData.add({"a":[]})
             rowLineLength = len(ExcelDAta.iloc[0])
             variableStrList =[]
-            for i in range(rowLineLength):
+            for i in range(1,rowLineLength):
                 Datatype =  ExcelDAta.iloc[0][i]
                 summary  =  ExcelDAta.iloc[1][i]
                 DataName =  ExcelDAta.iloc[2][i]
                 variableStrList.append("\n    /// <summary>\n    /// %s\n    /// </summary>\n"%summary+
-                    "   public %s %s;"%(Datatype,DataName)) 
-            Excel2Csv(ExcelDAta[2:],_txtSvaePath)
+                     "   public %s %s;"%(Datatype,DataName)) 
+            newExcelData = []
+            for item in ExcelDAta.iloc:
+                if item[0] == 1:
+                    dataline = []
+                    for i in range(1,rowLineLength):
+                        # print(item[i]) 
+                        dataline.append(item[i])
+                    newExcelData.append(dataline)
+            print("表头",list(ExcelDAta.iloc[2][1:]))
+            newExcel = pd.DataFrame(newExcelData,columns=list(ExcelDAta.iloc[2][1:]))
+            Excel2Csv(newExcel,_txtSvaePath)
             Excel2Csharp(variableStrList,_csharpSavePath,_csharpClssName)
 
 print("转换已完成")

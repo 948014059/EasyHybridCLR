@@ -12,29 +12,29 @@ public class TestData : BaseTable
    public int id;
    
     /// <summary>
-    /// 名称
+    /// 名称1
     /// </summary>
    public string name;
    
     /// <summary>
-    /// 其他
+    /// icon地址1
     /// </summary>
-   public string other;
+   public string icon;
    
     /// <summary>
-    /// 然后
+    /// 模型地址1
     /// </summary>
-   public string then;
+   public string model;
    
     /// <summary>
-    /// 这个
+    /// 类型1
     /// </summary>
-   public string this_;
+   public string type;
    
     /// <summary>
-    /// 没有
+    /// 提示1
     /// </summary>
-   public string no_;
+   public string tips;
 
    public List<TestData> data = new List<TestData>();
 
