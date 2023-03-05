@@ -14,7 +14,7 @@ namespace Assets.Hotfix.UI
         {
             UnityEngine.Debug.LogError("这是热更游戏脚本..... 的热更新log");
 
-
+            
             Stopwatch sw = new Stopwatch();
 
             sw.Start();
@@ -24,21 +24,12 @@ namespace Assets.Hotfix.UI
             sw.Stop();
             UnityEngine.Debug.Log(string.Format("total:{0} ms", sw.ElapsedMilliseconds));
 
-
             Stopwatch sw2 = new Stopwatch();
-
             sw2.Start();
-            TestData data2 = TableDataManager.GetInstance().GetTableDataByType<TestData>();
-            UnityEngine.Debug.Log(data2.GetDataByID(1).name);
+            ItemData data2 = TableDataManager.GetInstance().GetTableDataByType<ItemData>();
+            UnityEngine.Debug.Log(data2.GetDataByID(5).name);
             sw2.Stop();
             UnityEngine.Debug.Log(string.Format("total:{0} ms", sw2.ElapsedMilliseconds));
-
-
-
-
-
-
-
 
         }
     }

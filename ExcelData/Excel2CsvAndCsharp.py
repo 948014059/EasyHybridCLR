@@ -52,15 +52,15 @@ if __name__ == "__main__":
 
     if os.path.isdir(excelFloderPath):
         excelFilePaths = glob.glob(excelFloderPath+"/*.%s"%extensionStr)
-        for excelfilePath in excelFilePaths:
+        for excelfilePath in excelFilePaths: #文件夹内所有的excel文件
+            # 获得名称
             _excelPath = excelfilePath.replace("\\","/")
             _csharpClssName = _excelPath.split("/")[-1].split(".")[0]
-            print("正在转换：",_csharpClssName)
             _txtSvaePath = os.path.join(txtSavePath,_csharpClssName+".txt").replace("\\","/") 
             _csharpSavePath = os.path.join(csSavePath,_csharpClssName+".cs").replace("\\","/") 
+            #读取excel
             ExcelDAta = pd.read_excel(_excelPath,header=None)
-            # newExcelData = pd.DataFrame() 
-            # newExcelData.add({"a":[]})
+            #读取表头数据 类型  名称  summary
             rowLineLength = len(ExcelDAta.iloc[0])
             variableStrList =[]
             for i in range(1,rowLineLength):
@@ -69,6 +69,7 @@ if __name__ == "__main__":
                 DataName =  ExcelDAta.iloc[2][i]
                 variableStrList.append("\n    /// <summary>\n    /// %s\n    /// </summary>\n"%summary+
                      "   public %s %s;"%(Datatype,DataName)) 
+            # 创建一个新表，填充可导数据
             newExcelData = []
             for item in ExcelDAta.iloc:
                 if item[0] == 1:
@@ -77,7 +78,7 @@ if __name__ == "__main__":
                         # print(item[i]) 
                         dataline.append(item[i])
                     newExcelData.append(dataline)
-            print("表头",list(ExcelDAta.iloc[2][1:]))
+            print("正在转换：",_csharpClssName,"表头",list(ExcelDAta.iloc[2][1:]))
             newExcel = pd.DataFrame(newExcelData,columns=list(ExcelDAta.iloc[2][1:]))
             Excel2Csv(newExcel,_txtSvaePath)
             Excel2Csharp(variableStrList,_csharpSavePath,_csharpClssName)

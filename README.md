@@ -153,18 +153,28 @@ Assets
 # 配置表管理
 * excel格式
   * 数据类型展示支持int、string。
+  * 表格第一列数据 是控制是否导出该配置
   * 表格第一行为数据类型。
   * 第二行为提示内容summary
   * 第三行为使用名称
   * 第四行开始是数据
  
   例如
-  | int | string  | string  | string  |
-  |----|----|----|----|
-  |唯一id|名称|iconUrl|ModdelUrl|
+  |bool| int | string  | string  | string  |
+  |----|----|----|----|----|
+  |是否导出|唯一id|名称|iconUrl|ModdelUrl|
+  |1|id|name|icon|modul|
+  |1|1|dada1|123456|456789|
+  |0|2|dada2|123456|456789|
+  |1|3|dada3|123456|456789|
+  |0|4|dada4|123456|456789|
+
+  导出后的表格为：
   |id|name|icon|modul|
+  |----|----|----|----|
   |1|dada1|123456|456789|
-  |2|dada2|123456|456789|
+  |3|dada3|123456|456789|
+
 
 
 * 通过python脚本生成txt和CSharp文件
