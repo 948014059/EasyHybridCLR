@@ -30,7 +30,7 @@ namespace Assets.Hotfix.UI
             UnityEngine.Debug.Log(data2.GetDataByID(5).name);
             sw2.Stop();
             UnityEngine.Debug.Log(string.Format("total:{0} ms", sw2.ElapsedMilliseconds));
-
+            
         }
     }
 }
