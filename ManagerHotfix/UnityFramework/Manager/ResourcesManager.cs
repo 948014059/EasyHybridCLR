@@ -31,14 +31,25 @@ public static class  ResourcesManager
     }
 
 
-//    public static void GetPrefabsGameObjectAsync(List<string> paths, Action<Dictionary<string,GameObject>> callback)
-//    {
-//#if !ASSETBUNDLE
-//        return GetGameObjectFromEditorPath(path);
-//#else
-//        aBManager.GetGameObjectAsycn(paths, callback);
-//#endif
-//    }
+
+    public static void GetGameObjectAsync(string path, Action<GameObject> callback)
+    {
+#if !ASSETBUNDLE
+        GetGameObjectAsyncFromEditor(path, callback);
+#else
+        aBManager.GetGameObjectAsync(path,callback);
+#endif
+    }
+
+
+    //    public static void GetPrefabsGameObjectAsync(List<string> paths, Action<Dictionary<string,GameObject>> callback)
+    //    {
+    //#if !ASSETBUNDLE
+    //        return GetGameObjectFromEditorPath(path);
+    //#else
+    //        aBManager.GetGameObjectAsycn(paths, callback);
+    //#endif
+    //    }
 
 
 
@@ -85,6 +96,20 @@ public static class  ResourcesManager
 
 
 #if !ASSETBUNDLE
+
+    public static void GetGameObjectAsyncFromEditor(string path, Action<GameObject> callback)
+    {
+        string GoPath = Config.EditorPath + path + ".prefab";
+        if (File.Exists(Application.dataPath.Replace("Assets", "") + GoPath))
+        {
+            callback.Invoke(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(GoPath));
+        }
+        else
+        {
+            Debug.Log("未找到资源：" + path);
+        }
+        //callback.Invoke(null);
+    }
     private static GameObject GetGameObjectFromEditorPath(string path)
     {
         string GoPath = Config.EditorPath + path + ".prefab";

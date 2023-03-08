@@ -15,7 +15,7 @@ public class ABManager : BaseSingleTon<ABManager>
     private AssetBundle AbMain;
     private AssetBundleManifest ABManifest;
     private Dictionary<string, AssetBundle> ABDict = new Dictionary<string, AssetBundle>();
-
+    public Action<string, float> GameObjLoadAsyncCallBack;
     private List<string> loadingAssetName = new List<string>();
     private void Awake()
     {
@@ -78,6 +78,35 @@ public class ABManager : BaseSingleTon<ABManager>
         return null;
     }
 
+
+    public void GetGameObjectAsync(string _name, Action<GameObject> callBack)
+    {
+        loadingAssetName.Clear();
+        string name = _name.ToLower();
+        GetAssetBundelAllDependName(name);
+        //GameObject go = null;
+        StartCoroutine(LoadGameObjectDependAsycn(loadingAssetName, name, (go) => {
+            callBack?.Invoke(go);
+
+        }));
+    }
+
+    public IEnumerator LoadGameObjectDependAsycn(List<string> paths, string name, Action<GameObject> callBack)
+    {
+        int currIndex = 0;
+        foreach (var item in paths)
+        {
+            //AssetBundle assetBundle = null;
+            AssetBundleCreateRequest assetBundlereq = AssetBundle.LoadFromFileAsync(GetAssetsPath() + item);
+            yield return assetBundlereq;
+            if (assetBundlereq.isDone)
+            {
+                currIndex += 1;
+                ABDict.Add(item, assetBundlereq.assetBundle);
+                GameObjLoadAsyncCallBack.Invoke("Ñ°ÕÒ×ÊÔ´ÖÐ...", currIndex / 1.0f / paths.Count);
+            }
+        }
+    }
     public void GetGameObjectAsycn(List<string> _names, Action<Dictionary<string, GameObject>> callback)
     {
         loadingAssetName.Clear();
