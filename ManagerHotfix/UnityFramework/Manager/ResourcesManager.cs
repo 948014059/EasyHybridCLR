@@ -12,7 +12,7 @@ using UnityEngine.U2D;
 /// <summary>
 /// 资源加载 区分编辑器模式  还是打包模式
 /// </summary>
-public static class  ResourcesManager 
+public static class ResourcesManager
 {
 #if ASSETBUNDLE
     private static ABManager aBManager = ABManager.GetInstance();
@@ -20,6 +20,20 @@ public static class  ResourcesManager
 
 
 
+    public static T GetAssets<T>(string path) where T : UnityEngine.Object
+    {
+#if ASSETBUNDLE
+        return aBManager.GetAssetFromAB<T>(path);
+#else
+        return GetAssetsFromEditor<T>(path);
+#endif
+    }
+
+    /// <summary>
+    /// 同步加载
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     public static GameObject GetPrefab(string path)
     {
 
@@ -30,31 +44,20 @@ public static class  ResourcesManager
 #endif
     }
 
-
-
-    public static void GetGameObjectAsync(string path, Action<GameObject> callback)
+    /// <summary>
+    /// 协程加载
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="gameObjLoadAsyncCallBack"></param>
+    /// <param name="callback"></param>
+    public static void GetGameObjectAsync(string path, ABManager.GameObjLoadAsyncCallBack gameObjLoadAsyncCallBack, Action<GameObject> callback)
     {
 #if !ASSETBUNDLE
         GetGameObjectAsyncFromEditor(path, callback);
 #else
-        aBManager.GetGameObjectAsync(path,callback);
+        aBManager.GetGameObjectAsync(path, gameObjLoadAsyncCallBack, callback);
 #endif
     }
-
-
-    //    public static void GetPrefabsGameObjectAsync(List<string> paths, Action<Dictionary<string,GameObject>> callback)
-    //    {
-    //#if !ASSETBUNDLE
-    //        return GetGameObjectFromEditorPath(path);
-    //#else
-    //        aBManager.GetGameObjectAsycn(paths, callback);
-    //#endif
-    //    }
-
-
-
-
-
 
 
     public static Sprite GetSprite(string spritePath)
@@ -67,7 +70,7 @@ public static class  ResourcesManager
 #endif
     }
 
-    public static Sprite GetSpriteFromAtlas(string atlasPath , string spriteName)
+    public static Sprite GetSpriteFromAtlas(string atlasPath, string spriteName)
     {
 
 #if !ASSETBUNDLE
@@ -94,10 +97,23 @@ public static class  ResourcesManager
     }
 
 
-
 #if !ASSETBUNDLE
 
-    public static void GetGameObjectAsyncFromEditor(string path, Action<GameObject> callback)
+    private static T GetAssetsFromEditor<T>(string path) where T : UnityEngine.Object
+    {
+        string GoPath = Config.EditorPath + path + ".prefab";
+        if (File.Exists(Application.dataPath.Replace("Assets", "") + GoPath))
+        {
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(GoPath) as T;
+        }
+        else
+        {
+            Debug.Log("未找到资源：" + path);
+        }
+        return null;
+    }
+
+    private static void GetGameObjectAsyncFromEditor(string path, Action<GameObject> callback)
     {
         string GoPath = Config.EditorPath + path + ".prefab";
         if (File.Exists(Application.dataPath.Replace("Assets", "") + GoPath))
@@ -110,6 +126,8 @@ public static class  ResourcesManager
         }
         //callback.Invoke(null);
     }
+
+
     private static GameObject GetGameObjectFromEditorPath(string path)
     {
         string GoPath = Config.EditorPath + path + ".prefab";
@@ -153,7 +171,7 @@ public static class  ResourcesManager
         return null;
     }
 
-    public static  string  GetTxtDataFromEditorPath(string path)
+    public static string GetTxtDataFromEditorPath(string path)
     {
         string Txtpath = Config.EditorPath + path + ".txt";
         if (File.Exists(Application.dataPath.Replace("Assets", "") + Txtpath))
