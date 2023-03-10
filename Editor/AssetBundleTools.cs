@@ -18,10 +18,11 @@ public class AssetBundleTools : EditorWindow
 
     public static string VersionName = PlatFrom + "/VersionConfig.txt";
     static AssetBundleTools window;
-    public string Version = "1.0.0";
+    public static string Version = "1.0.0";
     public int TargetPlatformId = 1;
-    public bool IsGenHotFix = true;
+    public static bool IsGenHotFix = true;
     public bool IsCopyAB2StreamingAssets = false;
+    public bool IsReBuild = false;
 
     public BuildTarget[] buildTargets = new BuildTarget[]
     {
@@ -29,13 +30,28 @@ public class AssetBundleTools : EditorWindow
         BuildTarget.Android,
         BuildTarget.iOS,
     };
-    
+
     [MenuItem("AssetBundelTools/打包工具")]
     static void showWindow()
     {
         Caching.ClearCache();
         window = (AssetBundleTools)EditorWindow.GetWindow(typeof(AssetBundleTools), false);
         window.Show();
+    }
+
+    [MenuItem("AssetBundelTools/Build/BuildWithoutAB")]
+    static void BuildHotFixAndVersion()
+    {
+        IsGenHotFix = true;
+        BuildTarget target = EditorUserBuildSettings.activeBuildTarget;
+        CreateHotfixDllAndCopy(target);
+        SetVersionJson(target);
+    }
+
+    [MenuItem("AssetBundelTools/Build/CopyAB2StreamingAssetsDir")]
+    static void CopyAssetBundle2StreamingAssets()
+    {
+        CopyFilesRecursively(ABSavePath, Application.streamingAssetsPath + "/ProjectResources/");
     }
 
     private void OnGUI()
@@ -47,8 +63,8 @@ public class AssetBundleTools : EditorWindow
 
             //Debug.Log(Version + "" + TargetPlatformId);
             //Build(buildTargets[TargetPlatformId], Version);
-           // string Macro = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-            string  Macro = string.Empty;
+            // string Macro = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
+            string Macro = string.Empty;
             foreach (var item in ABMacro)
             {
                 if (item.Value)
@@ -59,7 +75,7 @@ public class AssetBundleTools : EditorWindow
 #if UNITY_ANDROID
     PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Macro);
 #elif UNITY_STANDALONE_WIN
-    PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, Macro);
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, Macro);
 #endif
 
             Debug.Log(Macro);
@@ -73,7 +89,7 @@ public class AssetBundleTools : EditorWindow
             //Build(buildTargets[TargetPlatformId], Version);
             // string Macro = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
             string Macro = string.Empty;
-            foreach (var item in ABMacro) 
+            foreach (var item in ABMacro)
             {
                 if (item.Value)
                 {
@@ -92,14 +108,15 @@ public class AssetBundleTools : EditorWindow
 
         Version = GUILayout.TextArea(Version);
         IsGenHotFix = GUILayout.Toggle(IsGenHotFix, "是否重新生成hotfix");
-        IsCopyAB2StreamingAssets =GUILayout.Toggle(IsCopyAB2StreamingAssets, "是否将AB包复制到StreamingAssets(打完整包使用)");
+        IsReBuild = GUILayout.Toggle(IsReBuild, "是否重新生成AB包");
+        IsCopyAB2StreamingAssets = GUILayout.Toggle(IsCopyAB2StreamingAssets, "是否将AB包复制到StreamingAssets(打完整包使用)");
 
 
-        TargetPlatformId = GUILayout.Toolbar(TargetPlatformId, new[] {"Window" , "Android" ,"Ios" });
+        TargetPlatformId = GUILayout.Toolbar(TargetPlatformId, new[] { "Window", "Android", "Ios" });
         if (GUILayout.Button("开始打AB包"))
         {
             //Debug.Log(Version + "" + TargetPlatformId);
-            Build(buildTargets[TargetPlatformId],Version);
+            Build(buildTargets[TargetPlatformId], Version);
         }
     }
 
@@ -108,15 +125,19 @@ public class AssetBundleTools : EditorWindow
     /// </summary>
     /// <param name="target"></param>
     /// <param name="version"></param>
-    private void Build(BuildTarget target,string version)
+    private void Build(BuildTarget target, string version)
     {
         Caching.ClearCache();
-        string[] filePaths = Directory.GetDirectories(ProjectResourcesPath,"*.*" ,SearchOption.TopDirectoryOnly);
+        string[] filePaths = Directory.GetDirectories(ProjectResourcesPath, "*.*", SearchOption.TopDirectoryOnly);
         string savePath = ABSavePath + target.ToString();
 
+        if (IsReBuild)
+        {
+            DeleteOldBundelFiles(savePath);
+        }
 
-        DeleteOldBundelFiles(savePath);
-        if (!Directory.Exists(savePath)) 
+
+        if (!Directory.Exists(savePath))
         {
             Directory.CreateDirectory(savePath);
         }
@@ -126,10 +147,10 @@ public class AssetBundleTools : EditorWindow
 
         CreateHotfixDllAndCopy(target);
         SetVersionJson(target);
-        
+
         if (IsCopyAB2StreamingAssets)
         {
-            CopyFilesRecursively(ABSavePath,Application.streamingAssetsPath+ "/ProjectResources/");
+            CopyFilesRecursively(ABSavePath, Application.streamingAssetsPath + "/ProjectResources/");
         }
 
 
@@ -139,23 +160,23 @@ public class AssetBundleTools : EditorWindow
     /// 生成最新的HotFix.dll文件
     /// </summary>
     /// <param name="target"></param>
-    private void GenHotFixDll(BuildTarget target)
-    { 
+    private static void GenHotFixDll(BuildTarget target)
+    {
         BuildAssetsCommand.BuildAssetBundleByTarget(target);
         CompileDllCommand.CompileDll(target);
         BuildAssetsCommand.CopyABAOTHotUpdateDlls(target);
     }
 
 
-    private void CopyFilesRecursively(string sourcePath, string targetPath)
+    private static void CopyFilesRecursively(string sourcePath, string targetPath)
     {
-        foreach (string dirPath in Directory.GetDirectories(sourcePath, "*",SearchOption.AllDirectories))
+        foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
         {
             Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
         }
-        foreach (string newPath in Directory.GetFiles(sourcePath,"*.*" ,SearchOption.AllDirectories))
+        foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
         {
-            File.Copy(newPath,newPath.Replace(sourcePath,targetPath),true);
+            File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
         }
     }
 
@@ -164,7 +185,7 @@ public class AssetBundleTools : EditorWindow
     /// 将生成的hotFix dll 复制到AB包保存目录中
     /// </summary>
     /// <param name="target"></param>
-    private void CreateHotfixDllAndCopy(BuildTarget target)
+    private static void CreateHotfixDllAndCopy(BuildTarget target)
     {
         if (IsGenHotFix)
         {
@@ -184,22 +205,22 @@ public class AssetBundleTools : EditorWindow
     /// 生成版本对比文件
     /// </summary>
     ///  
-    private void SetVersionJson(BuildTarget target)
+    private static void SetVersionJson(BuildTarget target)
     {
-        string versionPath = ABSavePath + target.ToString() + VersionName.Replace(target.ToString(),"");
+        string versionPath = ABSavePath + target.ToString() + VersionName.Replace(target.ToString(), "");
         //Debug.Log(versionPath);
         if (File.Exists(versionPath)) File.Delete(versionPath);
         JsonData versonJson = new JsonData();
-        string[] allFiles = Directory.GetFiles(ABSavePath + target.ToString(), "*.*",SearchOption.AllDirectories);
+        string[] allFiles = Directory.GetFiles(ABSavePath + target.ToString(), "*.*", SearchOption.AllDirectories);
         md5Dict.Clear();
 
-        long allLength = 0; 
-        foreach (var item in allFiles) 
+        long allLength = 0;
+        foreach (var item in allFiles)
         {
             string path = ABSavePath + target.ToString() + "/";
-            string fileName = item.Replace("\\","/").Replace(path, "");
+            string fileName = item.Replace("\\", "/").Replace(path, "");
             string extension = Path.GetExtension(item);
-            if (extension == ".manifest" && fileName != target.ToString()+ ".manifest")
+            if (extension == ".manifest" && fileName != target.ToString() + ".manifest")
             {
                 if (File.Exists(fileName))
                 {
@@ -232,7 +253,7 @@ public class AssetBundleTools : EditorWindow
         versonJson["version"] = Version;
         versonJson["length"] = allLength;
         versonJson["files"] = filesdata;
-        File.WriteAllText(versionPath,versonJson.ToJson());
+        File.WriteAllText(versionPath, versonJson.ToJson());
         md5Dict.Clear();
 
 
@@ -255,14 +276,14 @@ public class AssetBundleTools : EditorWindow
             {
                 extension = Path.GetExtension(childPath);
                 Debug.Log("------->" + extension);
-                if (extension != ".meta" && extension!= ".DS_Store")
+                if (extension != ".meta" && extension != ".DS_Store")
                 {
                     childPathName = Path.GetFileNameWithoutExtension(childPath);
                     directoryName = Path.GetDirectoryName(childPath).Replace("\\", "/");
 
                     AssetImporter aImp = AssetImporter.GetAtPath(childPath.Replace(Application.dataPath, "Assets"));
                     string abName = directoryName.Replace(ProjectResourcesPath, "") + "/" + childPathName;
-                    aImp.assetBundleName = abName.Replace(" ","");
+                    aImp.assetBundleName = abName;
 
                 }
             }
@@ -277,12 +298,12 @@ public class AssetBundleTools : EditorWindow
     {
         Debug.Log(savePath + Directory.Exists(savePath));
         if (Directory.Exists(savePath))
-        { 
+        {
             // Directory.Delete(savePath);
             DirectoryInfo di = new DirectoryInfo(savePath);
             di.Delete(true);
         }
-        
-        
+
+
     }
 }
