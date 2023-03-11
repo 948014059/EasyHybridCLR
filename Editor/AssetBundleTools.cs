@@ -195,6 +195,12 @@ public class AssetBundleTools : EditorWindow
         string hotFixPath = Application.streamingAssetsPath + "/Assembly-CSharp.dll.bytes";
         string newPath = ABSavePath + target.ToString() + "/Assembly-CSharp.dll.bytes";
         File.Copy(hotFixPath, newPath, true);
+
+        string managerHotFixPath = Application.streamingAssetsPath + "/ManagerHotfix.dll.bytes";
+        string newmanagerPath = ABSavePath + "ManagerHotfix.dll.bytes";
+        File.Copy(managerHotFixPath, newmanagerPath, true);
+
+
         AssetDatabase.Refresh();
     }
 

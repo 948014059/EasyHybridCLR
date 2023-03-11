@@ -16,6 +16,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     private Transform TipsFrom;
     private Transform LogFrom;
     private Dictionary<string, GameObject> ModuleDict = new Dictionary<string, GameObject>();
+    public Queue<System.Object> openModelObj = new Queue<System.Object>(); // 打开UI传递消息队列
 
 
     private void Awake()
@@ -58,6 +59,30 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     }
 
     /// <summary>
+    /// 使用泛型打开 并且可以传递Obj(只有打开时触发传值,打开后隐藏不会传递)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="callBack"></param>
+    /// <param name="obj"></param>
+    public void OpenModule<T>( Action callBack = null,System.Object obj = null) where T : BaseModule
+    {
+        if (ModuleDict.ContainsKey(typeof(T).Name))
+        {
+            ModuleDict[typeof(T).Name].gameObject.SetActive(true);
+            return;
+        }
+        BaseModule module = (T)System.Activator.CreateInstance(typeof(T));
+        Type viewType = module.GetView();
+        openModelObj.Enqueue(obj);
+        GameObject newGo = CreateGameObject(module.PreFabs, (BaseModule.LayerType)module.layer);
+        newGo.AddComponent(viewType);
+        ModuleDict.Add(typeof(T).Name, newGo);
+        Debug.Log("Module: " + typeof(T).Name + "已打开");
+        callBack?.Invoke();
+    }
+
+
+    /// <summary>
     /// 关闭module
     /// </summary>
     /// <param name="type"></param>
@@ -81,6 +106,29 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     }
 
     /// <summary>
+    /// 泛型关闭
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="isDes"></param>
+    public  void CloseModule<T>(bool isDes = true) where T : BaseModule
+    {
+        Debug.Log("正在关闭Module: " + typeof(T).Name);
+        if (ModuleDict.ContainsKey(typeof(T).Name))
+        {
+            if (!isDes)
+            {
+                ModuleDict[typeof(T).Name].SetActive(false);
+            }
+            else
+            {
+                Destroy(ModuleDict[typeof(T).Name]);
+                ModuleDict.Remove(typeof(T).Name);
+            }
+
+        }
+    }
+
+    /// <summary>
     /// 判断某个module是否打开
     /// </summary>
     /// <param name="type"></param>
@@ -93,6 +141,21 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         }
         return false;
     }
+
+    /// <summary>
+    /// 泛型判断某个UI是否打开
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public bool IsModuleOpen<T>()
+    {
+        if (ModuleDict.ContainsKey(typeof(T).Name) && ModuleDict[typeof(T).Name].activeInHierarchy)
+        {
+            return true;
+        }
+        return false;
+    }
+
 
     /// <summary>
     /// 删除所有的module
@@ -130,8 +193,6 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         return null;
         
     }
-
-
 
 
     /// <summary>
