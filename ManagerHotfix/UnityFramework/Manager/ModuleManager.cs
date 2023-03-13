@@ -33,7 +33,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     /// </summary>
     /// <param name="type"></param>
     /// <param name="callBack"></param>
-    public void OpenModule(Type type , Action callBack = null)
+    public void OpenModule(Type type, Action callBack = null, System.Object obj = null)
     {
         if (type == null)
         {
@@ -46,12 +46,13 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
             ModuleDict[type.Name].gameObject.SetActive(true);
             return;
         }
-        
+
         BaseModule module = (BaseModule)System.Activator.CreateInstance(type);
         MethodInfo moduleInfo = type.GetMethod("GetView");
         Type viewType = (Type)moduleInfo.Invoke(module, null);
         Debug.Log("正在打开Module: " + type.Name + "        获取资源PreFabs:" + module.PreFabs);
-        GameObject newGo = CreateGameObject(module.PreFabs, (BaseModule.LayerType)module.layer);       
+        openModelObj.Enqueue(obj);
+        GameObject newGo = CreateGameObject(module.PreFabs, (BaseModule.LayerType)module.layer);
         newGo.AddComponent(viewType);
         ModuleDict.Add(type.Name, newGo);
         Debug.Log("Module: " + type.Name + "已打开");
@@ -64,22 +65,22 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     /// <typeparam name="T"></typeparam>
     /// <param name="callBack"></param>
     /// <param name="obj"></param>
-    public void OpenModule<T>( Action callBack = null,System.Object obj = null) where T : BaseModule
-    {
-        if (ModuleDict.ContainsKey(typeof(T).Name))
-        {
-            ModuleDict[typeof(T).Name].gameObject.SetActive(true);
-            return;
-        }
-        BaseModule module = (T)System.Activator.CreateInstance(typeof(T));
-        Type viewType = module.GetView();
-        openModelObj.Enqueue(obj);
-        GameObject newGo = CreateGameObject(module.PreFabs, (BaseModule.LayerType)module.layer);
-        newGo.AddComponent(viewType);
-        ModuleDict.Add(typeof(T).Name, newGo);
-        Debug.Log("Module: " + typeof(T).Name + "已打开");
-        callBack?.Invoke();
-    }
+    //public void OpenModule<T>(Action callBack = null, System.Object obj = null) where T : BaseModule
+    //{
+    //    if (ModuleDict.ContainsKey(typeof(T).Name))
+    //    {
+    //        ModuleDict[typeof(T).Name].gameObject.SetActive(true);
+    //        return;
+    //    }
+    //    BaseModule module = (T)System.Activator.CreateInstance(typeof(T));
+    //    Type viewType = module.GetView();
+    //    openModelObj.Enqueue(obj);
+    //    GameObject newGo = CreateGameObject(module.PreFabs, (BaseModule.LayerType)module.layer);
+    //    newGo.AddComponent(viewType);
+    //    ModuleDict.Add(typeof(T).Name, newGo);
+    //    Debug.Log("Module: " + typeof(T).Name + "已打开");
+    //    callBack?.Invoke();
+    //}
 
 
     /// <summary>
@@ -87,7 +88,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     /// </summary>
     /// <param name="type"></param>
     /// <param name="isDes"></param>
-    public void CloseModule(Type type ,bool isDes = true)
+    public void CloseModule(Type type, bool isDes = true)
     {
         Debug.Log("正在关闭Module: " + type.Name);
         if (ModuleDict.ContainsKey(type.Name))
@@ -110,7 +111,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="isDes"></param>
-    public  void CloseModule<T>(bool isDes = true) where T : BaseModule
+    public void CloseModule<T>(bool isDes = true) where T : BaseModule
     {
         Debug.Log("正在关闭Module: " + typeof(T).Name);
         if (ModuleDict.ContainsKey(typeof(T).Name))
@@ -182,8 +183,8 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         {
             GameObject newGo = Instantiate(go);
             newGo.transform.SetParent(GetFromByType(type));
-            Debug.Log("设置父物体："+GetFromByType(type)+ 
-                "type:"+ type + "  UIFrom:" + UIFrom);
+            Debug.Log("设置父物体：" + GetFromByType(type) +
+                "type:" + type + "  UIFrom:" + UIFrom);
             newGo.transform.localPosition = Vector3.zero;
             newGo.transform.localScale = Vector3.one;
             newGo.gameObject.SetActive(true);
@@ -191,7 +192,7 @@ public class ModuleManager : BaseSingleTon<ModuleManager>
         }
         Debug.Log("未找到：" + path);
         return null;
-        
+
     }
 
 

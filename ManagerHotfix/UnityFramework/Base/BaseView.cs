@@ -7,7 +7,7 @@ using UnityEngine;
 
  public abstract  class BaseView : MonoBehaviour
 {
-    public abstract void Init(System.Object obj);
+    public abstract void ShowView(System.Object obj);
     public abstract void AddEventListener();
     public abstract void RemoveEventListener();
 
@@ -16,7 +16,7 @@ using UnityEngine;
     public virtual void Awake()
     {
         System.Object openModuleObj = ModuleManager.GetInstance().openModelObj.Dequeue();
-        Init(openModuleObj);
+        ShowView(openModuleObj);
         AddEventListener();
         OnBtnClickEvent();
     }

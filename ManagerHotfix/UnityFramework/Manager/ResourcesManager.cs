@@ -20,12 +20,15 @@ public static class ResourcesManager
 
 
 
-    public static T GetAssets<T>(string path) where T : UnityEngine.Object
+    public static T GetAssets<T>(string _path) where T : UnityEngine.Object
     {
 #if ASSETBUNDLE
+        string pathExtension = Path.GetExtension(_path);
+        string path = _path.Replace(pathExtension,"")
         return aBManager.GetAssetFromAB<T>(path);
 #else
-        return GetAssetsFromEditor<T>(path);
+
+        return GetAssetsFromEditor<T>(_path);
 #endif
     }
 
@@ -101,7 +104,7 @@ public static class ResourcesManager
 
     private static T GetAssetsFromEditor<T>(string path) where T : UnityEngine.Object
     {
-        string GoPath = Config.EditorPath + path + ".prefab";
+        string GoPath = Config.EditorPath + path;
         if (File.Exists(Application.dataPath.Replace("Assets", "") + GoPath))
         {
             return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(GoPath) as T;
