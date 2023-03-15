@@ -1,3 +1,6 @@
+* 这个版本已废弃，新版本请移步到
+  https://github.com/948014059/JFrameWork
+  
 # 接入HybridCLR
 * https://gitee.com/focus-creative-games/hybridclr_unity.git
 * Window > Package Manager > + > add package from git url 
